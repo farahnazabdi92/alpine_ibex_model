@@ -28,3 +28,14 @@ def run_scenario(project_root: Path, name: str, salt_modifier: float = 1.0, slop
     plot_population_timeseries(df, ts_path)
     print(f"[{name}] figures saved to {heatmap_path} and {ts_path}")
     return df
+if __name__ == "__main__":
+    root = Path(__file__).resolve().parents[1]  # project root
+    np.random.seed(42)
+    scenarios = [
+        ("baseline", 1.0, 1.0),
+        ("low_salt", 0.5, 1.0),
+        ("steeper", 1.0, 1.3),
+    ]
+    for name, salt_mod, slope_mod in scenarios:
+        run_scenario(root, name=name, salt_modifier=salt_mod, slope_modifier=slope_mod,
+                     n_agents=60, time_steps=200, seed=42)
