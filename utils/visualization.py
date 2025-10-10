@@ -1,4 +1,17 @@
-import os, numpy as np, matplotlib.pyplot as plt, pandas as pd
+from __future__ import annotations
+from pathlib import Path
+import numpy as np, matplotlib.pyplot as plt, pandas as pd
+
+def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
+    """Plot occupancy heatmap from agent positions over time."""
+    xs = df["x"].to_numpy(dtype=float)
+    ys = df["y"].to_numpy(dtype=float)
+    if xs.size == 0:
+        return
+    # Determine bounds
+    x_max = int(np.ceil(xs.max())) + 1
+    y_max = int(np.ceil(ys.max())) + 1
+    H, xedges, yedges = np.histogram2d(ys, xs, bins=[min(y_max, grid_size), min(x_max, grid_size)])
 
 def plot_heatmap(df, terrain, title, fig_dir, filename):
     if df is None or df.empty:
