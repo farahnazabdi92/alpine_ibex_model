@@ -81,3 +81,8 @@ class IbexAgent:
         # Apply movement & keep within bounds
         self.x = float(np.clip(self.x + dx, 0, w - 1))
         self.y = float(np.clip(self.y + dy, 0, h - 1))
+
+        # Energy & salt dynamics
+        move_cost = self.base_move_cost + self.slope_move_cost * local_slope
+        self.energy = float(np.clip(self.energy - move_cost, 0.0, 1.0))
+        self.salt_need = float(np.clip(self.salt_need + self.salt_growth_per_step, 0.0, 1.0))
