@@ -26,6 +26,10 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
     plt.show()
     plt.close()
 
+def plot_population_timeseries(df: pd.DataFrame, out_path: Path):
+    """Plot number of alive agents over time."""
+    if df.empty:
+        return
 def plot_salt_visits(df_dict, fig_dir):
     def salt_visit_counts(df):
         if df is None or df.empty or "consumed_salt_id" not in df.columns:
