@@ -21,6 +21,7 @@ def load_terrain(data_dir: Path) -> np.ndarray:
     if arr.max() > 1.01:
         arr = (arr - arr.min()) / (arr.max() - arr.min() + 1e-8)
     return arr
+
 class Environment:
     """
     Generates synthetic terrain and salt locations and saves to /data.
