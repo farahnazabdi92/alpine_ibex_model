@@ -50,3 +50,23 @@ class IbexAgent:
             self.alive = False
             self.path.append((self.x, self.y))
             return
+
+        # Choose a movement direction
+        target = None
+        if self.salt_need > self.salt_seek_threshold and len(salt_points) > 0:
+            # Seek nearest salt point
+            dists = np.sqrt(((salt_points[:, 0] - self.x) ** 2) + ((salt_points[:, 1] - self.y) ** 2))
+            nearest_idx = int(np.argmin(dists))
+            target = (float(salt_points[nearest_idx, 0]), float(salt_points[nearest_idx, 1]))
+
+        # Compute movement vector
+        dx = dy = 0.0
+        if target is not None:
+            # Move towards salt, but avoid very steep slopes by shortening the step
+            vec = np.array([target[0] - self.x, target[1] - self.y], dtype=float)
+            norm = np.linalg.norm(vec) + 1e-8
+            step_len = min(self.max_step, norm)
+            # reduce step length when slope is high
+            step_len *= float(np.clip(1.0 - local_slope, 0.2, 1.0))
+            move = vec / norm * step_len
+            dx, dy = float(move[0]), float(move[1])
