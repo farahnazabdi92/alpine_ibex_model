@@ -1,10 +1,11 @@
-import pandas as pd
-import numpy as np
-from src.agents import IbexAgent
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
 from pathlib import Path
+import numpy as np
+import pandas as pd
+
+from src.agents import IbexAgent
 
 @dataclass
 class IbexModel:
