@@ -26,3 +26,18 @@ class IbexAgent:
     salt_growth_per_step: float = 0.01
     salt_seek_threshold: float = 0.4
     max_step: float = 1.5
+
+    def step(self, terrain: np.ndarray, salt_points: np.ndarray, slope_modifier: float = 1.0):
+        """Advance the agent by one time step.
+        - compute local slope and fall probability
+        - optionally move (seek salt or roam)
+        - update energy/salt
+        - record path
+        """
+        if not self.alive:
+            return
+
+        h, w = terrain.shape
+        # Clip to valid indices
+        ix = int(np.clip(round(self.x), 0, w - 1))
+        iy = int(np.clip(round(self.y), 0, h - 1))
