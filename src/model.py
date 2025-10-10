@@ -18,6 +18,11 @@ class IbexModel:
     agents: List[IbexAgent] = field(default_factory=list)
     step_idx: int = 0
 
+    def __post_init__(self):
+        if self.seed is not None:
+            np.random.seed(self.seed)
+        h, w = self.terrain.shape
+
 
 class IbexABM:
     def __init__(self, terrain, salt_points, n_agents=60, time_steps=200, seed=123):
