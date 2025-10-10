@@ -18,3 +18,6 @@ def run_scenario(project_root: Path, name: str, salt_modifier: float = 1.0, slop
     model = IbexModel(terrain=terrain_mod, salt_points=salt_mod,
                       n_agents=n_agents, time_steps=time_steps, slope_modifier=slope_modifier, seed=seed)
     df = model.run()
+    out_csv = data_dir / f"results_{name}.csv"
+    df.to_csv(out_csv, index=False)
+    print(f"[{name}] saved to {out_csv}")
