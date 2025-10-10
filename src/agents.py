@@ -94,3 +94,9 @@ class IbexAgent:
                 self.salt_need = float(np.clip(self.salt_need - self.salt_gain_per_intake, 0.0, 1.0))
                 self.energy = float(np.clip(self.energy + self.energy_gain_per_intake, 0.0, 1.0))
 
+        # Death by starvation
+        if self.energy <= 0.0:
+            self.alive = False
+
+        # Record path
+        self.path.append((self.x, self.y))
