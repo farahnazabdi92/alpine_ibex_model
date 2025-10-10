@@ -1,4 +1,16 @@
-import os, numpy as np, pandas as pd
+from __future__ import annotations
+from pathlib import Path
+from typing import Tuple
+import numpy as np
+import pandas as pd
+
+def project_paths(project_root: Path) -> Tuple[Path, Path, Path]:
+    data = project_root / "data"
+    figures = project_root / "figures"
+    utils = project_root / "utils"
+    data.mkdir(exist_ok=True, parents=True)
+    figures.mkdir(exist_ok=True, parents=True)
+    return data, figures, utils
 
 class Environment:
     """
