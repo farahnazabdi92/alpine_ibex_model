@@ -41,3 +41,12 @@ class IbexAgent:
         # Clip to valid indices
         ix = int(np.clip(round(self.x), 0, w - 1))
         iy = int(np.clip(round(self.y), 0, h - 1))
+
+        local_slope = float(terrain[iy, ix]) * slope_modifier  # assume terrain stores slope 0..1
+        # Probability of fall grows with slope, decreases with skill & tolerance
+        # a simple logistic: sigmoid( 8*slope - 5*(skill+risk_tol)/2 )
+        p_fall = sigmoid(8.0 * local_slope - 5.0 * (self.skill + self.risk_tolerance) * 0.5)
+        if np.random.rand() < p_fall * 0.05:  # falls are rare but possible
+            self.alive = False
+            self.path.append((self.x, self.y))
+            return
