@@ -12,6 +12,15 @@ def project_paths(project_root: Path) -> Tuple[Path, Path, Path]:
     figures.mkdir(exist_ok=True, parents=True)
     return data, figures, utils
 
+def load_terrain(data_dir: Path) -> np.ndarray:
+    """Load normalized slope/terrain array stored in .npy (values ~ 0..1)."""
+    path = data_dir / "terrain.npy"
+    arr = np.load(path)
+    # Normalize if not in 0..1
+    arr = arr.astype(float)
+    if arr.max() > 1.01:
+        arr = (arr - arr.min()) / (arr.max() - arr.min() + 1e-8)
+    return arr
 class Environment:
     """
     Generates synthetic terrain and salt locations and saves to /data.
