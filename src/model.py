@@ -23,6 +23,24 @@ class IbexModel:
             np.random.seed(self.seed)
         h, w = self.terrain.shape
 
+        # Spawn agents avoiding exact salt point collision
+        salt_set = set((float(x), float(y)) for x, y in self.salt_points.tolist())
+        for i in range(self.n_agents):
+            while True:
+                x = float(np.random.uniform(0, w - 1))
+                y = float(np.random.uniform(0, h - 1))
+                if (round(x, 1), round(y, 1)) not in salt_set:
+                    break
+            a = IbexAgent(
+                id=i,
+                x=x, y=y,
+                energy=float(np.random.uniform(0.6, 1.0)),
+                salt_need=float(np.random.uniform(0.2, 0.6)),
+                skill=float(np.random.uniform(0.3, 0.8)),
+                risk_tolerance=float(np.random.uniform(0.3, 0.8)),
+            )
+            self.agents.append(a)
+
 
 class IbexABM:
     def __init__(self, terrain, salt_points, n_agents=60, time_steps=200, seed=123):
