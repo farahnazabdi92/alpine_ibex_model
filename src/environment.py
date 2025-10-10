@@ -31,3 +31,12 @@ def load_salt_points(data_dir: Path) -> np.ndarray:
 
 def modify_terrain(terrain: np.ndarray, slope_modifier: float) -> np.ndarray:
     return np.clip(terrain * float(slope_modifier), 0.0, 1.0)
+
+def modify_salt_points(salt_points: np.ndarray, salt_modifier: float) -> np.ndarray:
+    if salt_modifier >= 1.0:
+        return salt_points
+    # randomly sample a subset
+    n = len(salt_points)
+    keep = int(max(1, np.floor(n * salt_modifier)))
+    idx = np.random.choice(np.arange(n), size=keep, replace=False)
+    return salt_points[idx]
