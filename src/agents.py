@@ -70,3 +70,11 @@ class IbexAgent:
             step_len *= float(np.clip(1.0 - local_slope, 0.2, 1.0))
             move = vec / norm * step_len
             dx, dy = float(move[0]), float(move[1])
+
+        else:
+            # Random roaming with slight downhill bias
+            angle = np.random.rand() * 2 * np.pi
+            step_len = self.max_step * (0.6 + 0.4 * (1.0 - local_slope))
+            dx = float(np.cos(angle) * step_len)
+            dy = float(np.sin(angle) * step_len)
+
