@@ -16,3 +16,13 @@ class IbexAgent:
     risk_tolerance: float = 0.5   # 0..1 (higher => accepts higher risk)
     alive: bool = True
     path: List[Tuple[float, float]] = field(default_factory=list)
+
+    # Simulation constants
+    intake_radius: float = 2.5
+    base_move_cost: float = 0.003
+    slope_move_cost: float = 0.004
+    salt_gain_per_intake: float = 0.25
+    energy_gain_per_intake: float = 0.15
+    salt_growth_per_step: float = 0.01
+    salt_seek_threshold: float = 0.4
+    max_step: float = 1.5
