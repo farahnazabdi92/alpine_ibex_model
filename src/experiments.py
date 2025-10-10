@@ -1,16 +1,41 @@
-import os
-from src.model import IbexABM
+from __future__ import annotations
+from pathlib import Path
+import numpy as np
+import pandas as pd
 
-def run_scenario(project_root, terrain, salt_points, name, salt_modifier=1.0, slope_modifier=1.0,
-                 n_agents=60, time_steps=200):
-    print(f"\nRunning scenario: {name}")
-    terrain_mod = terrain * slope_modifier
-    n_salt = max(1, int(len(salt_points) * salt_modifier))
-    salt_mod = salt_points[:n_salt]
-    model = IbexABM(terrain_mod, salt_mod, n_agents=n_agents, time_steps=time_steps)
-    model.run()
-    df = model.to_dataframe()
-    out = os.path.join(project_root, f"data/results_{name}.csv")
-    df.to_csv(out, index=False)
-    print(f"Saved {name} results to {out}")
+from src.model import IbexModel
+from src.environment import project_paths, load_terrain, load_salt_points, modify_terrain, modify_salt_points
+from utils.visualization import plot_heatmap, plot_population_timeseries
+
+def run_scenario(project_root: Path, name: str, salt_modifier: float = 1.0, slope_modifier: float = 1.0,
+                 n_agents: int = 60, time_steps: int = 200, seed: int | None = 42) -> pd.DataFrame:
+    data_dir, figures_dir, _ = project_paths(project_root)
+    terrain = load_terrain(data_dir)
+    salt_points = load_salt_points(data_dir)
+    terrain_mod = modify_terrain(terrain, slope_modifier)
+    salt_mod = modify_salt_points(salt_points, salt_modifier)
+
+    model = IbexModel(terrain=terrain_mod, salt_points=salt_mod,
+                      n_agents=n_agents, time_steps=time_steps, slope_modifier=slope_modifier, seed=seed)
+    df = model.run()
+    out_csv = data_dir / f"results_{name}.csv"
+    df.to_csv(out_csv, index=False)
+    print(f"[{name}] saved to {out_csv}")
+    # Basic figures
+    heatmap_path = figures_dir / f"heatmap_{name}.png"
+    ts_path = figures_dir / f"pop_{name}.png"
+    plot_heatmap(df, heatmap_path)
+    plot_population_timeseries(df, ts_path)
+    print(f"[{name}] figures saved to {heatmap_path} and {ts_path}")
     return df
+if __name__ == "__main__":
+    root = Path(__file__).resolve().parents[1]  # project root
+    np.random.seed(42)
+    scenarios = [
+        ("baseline", 1.0, 1.0),
+        ("low_salt", 0.5, 1.0),
+        ("steeper", 1.0, 1.3),
+    ]
+    for name, salt_mod, slope_mod in scenarios:
+        run_scenario(root, name=name, salt_modifier=salt_mod, slope_modifier=slope_mod,
+                     n_agents=60, time_steps=200, seed=42)
