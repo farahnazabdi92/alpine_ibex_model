@@ -86,3 +86,11 @@ class IbexAgent:
         move_cost = self.base_move_cost + self.slope_move_cost * local_slope
         self.energy = float(np.clip(self.energy - move_cost, 0.0, 1.0))
         self.salt_need = float(np.clip(self.salt_need + self.salt_growth_per_step, 0.0, 1.0))
+
+        # Intake if close to salt
+        if len(salt_points) > 0:
+            dist_to_salt = np.min(np.sqrt(((salt_points[:, 0] - self.x) ** 2) + ((salt_points[:, 1] - self.y) ** 2)))
+            if dist_to_salt <= self.intake_radius:
+                self.salt_need = float(np.clip(self.salt_need - self.salt_gain_per_intake, 0.0, 1.0))
+                self.energy = float(np.clip(self.energy + self.energy_gain_per_intake, 0.0, 1.0))
+
