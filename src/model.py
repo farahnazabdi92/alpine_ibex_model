@@ -1,5 +1,23 @@
 import pandas as pd
+import numpy as np
 from src.agents import IbexAgent
+from __future__ import annotations
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
+from pathlib import Path
+
+@dataclass
+class IbexModel:
+    terrain: np.ndarray
+    salt_points: np.ndarray
+    n_agents: int = 60
+    time_steps: int = 200
+    slope_modifier: float = 1.0
+    seed: int | None = None
+
+    agents: List[IbexAgent] = field(default_factory=list)
+    step_idx: int = 0
+
 
 class IbexABM:
     def __init__(self, terrain, salt_points, n_agents=60, time_steps=200, seed=123):
