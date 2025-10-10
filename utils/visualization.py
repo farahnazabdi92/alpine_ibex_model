@@ -19,27 +19,12 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
     plt.xlabel("X")
     plt.ylabel("Y")
     plt.colorbar()
-
-def plot_heatmap(df, terrain, title, fig_dir, filename):
-    if df is None or df.empty:
-        print(f"No data for {title}, skipping.")
-        return
-    heat = np.zeros_like(terrain)
-    for _, row in df.iterrows():
-        if bool(row.get("alive", True)):
-            x, y = int(row["x"]), int(row["y"])
-            if 0 <= x < heat.shape[0] and 0 <= y < heat.shape[1]:
-                heat[x, y] += 1
-    plt.imshow(heat, cmap="hot", origin="lower")
-    plt.title(title)
-    plt.colorbar(label="Visit count")
-    plt.tight_layout()
-    os.makedirs(fig_dir, exist_ok=True)
-    path = os.path.join(fig_dir, filename)
-    plt.savefig(path, dpi=150)
+    #Output
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_path, dpi=160, bbox_inches="tight")
     plt.show()
     plt.close()
-    print(f"Saved: {path}")
 
 def plot_salt_visits(df_dict, fig_dir):
     def salt_visit_counts(df):
