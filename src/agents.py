@@ -78,3 +78,6 @@ class IbexAgent:
             dx = float(np.cos(angle) * step_len)
             dy = float(np.sin(angle) * step_len)
 
+        # Apply movement & keep within bounds
+        self.x = float(np.clip(self.x + dx, 0, w - 1))
+        self.y = float(np.clip(self.y + dy, 0, h - 1))
