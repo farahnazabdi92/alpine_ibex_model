@@ -41,6 +41,11 @@ class IbexModel:
             )
             self.agents.append(a)
 
+    def step(self):
+        for a in self.agents:
+            a.step(self.terrain, self.salt_points, self.slope_modifier)
+        self.step_idx += 1
+
 
 class IbexABM:
     def __init__(self, terrain, salt_points, n_agents=60, time_steps=200, seed=123):
