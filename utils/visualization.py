@@ -12,6 +12,13 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
     x_max = int(np.ceil(xs.max())) + 1
     y_max = int(np.ceil(ys.max())) + 1
     H, xedges, yedges = np.histogram2d(ys, xs, bins=[min(y_max, grid_size), min(x_max, grid_size)])
+    # Display
+    plt.figure()
+    plt.imshow(H, origin="lower", aspect="auto")
+    plt.title("Agent Occupancy Heatmap")
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.colorbar()
 
 def plot_heatmap(df, terrain, title, fig_dir, filename):
     if df is None or df.empty:
