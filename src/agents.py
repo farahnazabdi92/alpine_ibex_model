@@ -1,76 +1,102 @@
+from __future__ import annotations
+from dataclasses import dataclass, field
+from typing import List, Tuple
 import numpy as np
-from utils.calculations import sigmoid, distance
 
+from utils.calculations import sigmoid, distance_clipped
+
+@dataclass
 class IbexAgent:
-    """
-    Alpine ibex individual agent.
-    v2 changes:
-    - Lower energy decay per step
-    - Slower salt-need growth
-    - Lower fall probability (more weight to skill)
-    - Larger salt consumption radius
-    """
-    def __init__(self, idx, terrain, salt_points):
-        self.id = idx
-        n = terrain.shape[0]
-        self.x, self.y = np.random.randint(0, n), np.random.randint(0, n)
-        self.energy = 1.0
-        self.salt_need = np.random.uniform(0.25, 0.5)
-        self.climb_skill = np.random.uniform(0.45, 0.85)
-        self.risk_tolerance = np.random.uniform(0.45, 0.75)
-        self.alive = True
+    id: int
+    x: float
+    y: float
+    energy: float = 1.0           # 0..1
+    salt_need: float = 0.3        # 0..1
+    skill: float = 0.5            # 0..1 (climbing skill)
+    risk_tolerance: float = 0.5   # 0..1 (higher => accepts higher risk)
+    alive: bool = True
+    path: List[Tuple[float, float]] = field(default_factory=list)
 
-        self.terrain = terrain          # slope in [0, ~1.2]
-        self.salt_points = salt_points  # array of [x,y]
+    # Simulation constants
+    intake_radius: float = 2.5
+    base_move_cost: float = 0.003
+    slope_move_cost: float = 0.004
+    salt_gain_per_intake: float = 0.25
+    energy_gain_per_intake: float = 0.15
+    salt_growth_per_step: float = 0.01
+    salt_seek_threshold: float = 0.4
+    max_step: float = 1.5
 
-        self.consumed_salt_id = None
-
-    def step(self):
+    def step(self, terrain: np.ndarray, salt_points: np.ndarray, slope_modifier: float = 1.0):
+        """Advance the agent by one time step.
+        - compute local slope and fall probability
+        - optionally move (seek salt or roam)
+        - update energy/salt
+        - record path
+        """
         if not self.alive:
             return
 
-        slope_here = float(self.terrain[self.x, self.y])
+        h, w = terrain.shape
+        # Clip to valid indices
+        ix = int(np.clip(round(self.x), 0, w - 1))
+        iy = int(np.clip(round(self.y), 0, h - 1))
 
-        # --- v2: gentler fall probability
-        p_fall = sigmoid(2.8 * slope_here - 3.5 * self.climb_skill)
-
-        # stochastic falling (tempered by risk tolerance)
-        if np.random.rand() < p_fall * (1 - self.risk_tolerance):
+        local_slope = float(terrain[iy, ix]) * slope_modifier  # assume terrain stores slope 0..1
+        # Probability of fall grows with slope, decreases with skill & tolerance
+        # a simple logistic: sigmoid( 8*slope - 5*(skill+risk_tol)/2 )
+        p_fall = sigmoid(8.0 * local_slope - 5.0 * (self.skill + self.risk_tolerance) * 0.5)
+        if np.random.rand() < p_fall * 0.05:  # falls are rare but possible
             self.alive = False
+            self.path.append((self.x, self.y))
             return
 
-        # --- v2: gentler energy and slower salt accumulation
-        self.energy -= 0.004 * (1.0 + slope_here)
-        self.salt_need += 0.02
+        # Choose a movement direction
+        target = None
+        if self.salt_need > self.salt_seek_threshold and len(salt_points) > 0:
+            # Seek nearest salt point
+            dists = np.sqrt(((salt_points[:, 0] - self.x) ** 2) + ((salt_points[:, 1] - self.y) ** 2))
+            nearest_idx = int(np.argmin(dists))
+            target = (float(salt_points[nearest_idx, 0]), float(salt_points[nearest_idx, 1]))
 
-        # nearest salt point
-        nearest_idx, nearest_pt, min_d = None, None, float("inf")
-        for i, s in enumerate(self.salt_points):
-            d = distance((self.x, self.y), (s[0], s[1]))
-            if d < min_d:
-                min_d, nearest_idx, nearest_pt = d, i, s
+        # Compute movement vector
+        dx = dy = 0.0
+        if target is not None:
+            # Move towards salt, but avoid very steep slopes by shortening the step
+            vec = np.array([target[0] - self.x, target[1] - self.y], dtype=float)
+            norm = np.linalg.norm(vec) + 1e-8
+            step_len = min(self.max_step, norm)
+            # reduce step length when slope is high
+            step_len *= float(np.clip(1.0 - local_slope, 0.2, 1.0))
+            move = vec / norm * step_len
+            dx, dy = float(move[0]), float(move[1])
 
-        # consume salt if within radius (v2: radius 5)
-        if nearest_pt is not None and min_d < 5.0:
-            self.energy = min(1.0, self.energy + 0.25)
-            self.salt_need = max(0.0, self.salt_need - 0.6)
-            self.consumed_salt_id = int(nearest_idx)
-
-        # movement: be exploratory if need salt
-        n = self.terrain.shape[0]
-        explore = (np.random.rand() < 0.6) or (self.salt_need > 0.55)
-        if explore and nearest_pt is not None:
-            # biased random step towards nearest salt
-            dx = int(np.sign(nearest_pt[0] - self.x))
-            dy = int(np.sign(nearest_pt[1] - self.y))
-            # add jitter
-            dx += np.random.choice([-1,0,1])
-            dy += np.random.choice([-1,0,1])
         else:
-            dx, dy = np.random.choice([-1,0,1]), np.random.choice([-1,0,1])
+            # Random roaming with slight downhill bias
+            angle = np.random.rand() * 2 * np.pi
+            step_len = self.max_step * (0.6 + 0.4 * (1.0 - local_slope))
+            dx = float(np.cos(angle) * step_len)
+            dy = float(np.sin(angle) * step_len)
 
-        self.x = int(np.clip(self.x + dx, 0, n-1))
-        self.y = int(np.clip(self.y + dy, 0, n-1))
+        # Apply movement & keep within bounds
+        self.x = float(np.clip(self.x + dx, 0, w - 1))
+        self.y = float(np.clip(self.y + dy, 0, h - 1))
 
-        if self.energy <= 0:
+        # Energy & salt dynamics
+        move_cost = self.base_move_cost + self.slope_move_cost * local_slope
+        self.energy = float(np.clip(self.energy - move_cost, 0.0, 1.0))
+        self.salt_need = float(np.clip(self.salt_need + self.salt_growth_per_step, 0.0, 1.0))
+
+        # Intake if close to salt
+        if len(salt_points) > 0:
+            dist_to_salt = np.min(np.sqrt(((salt_points[:, 0] - self.x) ** 2) + ((salt_points[:, 1] - self.y) ** 2)))
+            if dist_to_salt <= self.intake_radius:
+                self.salt_need = float(np.clip(self.salt_need - self.salt_gain_per_intake, 0.0, 1.0))
+                self.energy = float(np.clip(self.energy + self.energy_gain_per_intake, 0.0, 1.0))
+
+        # Death by starvation
+        if self.energy <= 0.0:
             self.alive = False
+
+        # Record path
+        self.path.append((self.x, self.y))
