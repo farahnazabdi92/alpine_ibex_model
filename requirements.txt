@@ -1,6 +1,18 @@
 # Python Environment
 Python >= 3.9
 
-#Data Handling
+# Data Handling
 numpy == 1.26.4
 pandas == 2.2.2
+
+# Core scientific libraries
+matplotlib==3.9.0
+scipy==1.13.1
+
+# Development and visualization
+jupyter==1.0.0
+notebook==7.2.1
+
+# Optional but useful
+seaborn==0.13.2
+pathlib==1.0.1
