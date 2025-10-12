@@ -26,8 +26,8 @@ def run_scenario(project_root: Path, name: str, salt_modifier: float = 1.0, slop
     # Basic figures
     heatmap_path = figures_dir / f"heatmap_{name}.png"
     ts_path = figures_dir / f"pop_{name}.png"
-    plot_heatmap(df, heatmap_path)
-    plot_population_timeseries(df, ts_path)
+    plot_heatmap(df, heatmap_path, name)
+    plot_population_timeseries(df, ts_path, name)
     print(f"[{name}] figures saved to {heatmap_path} and {ts_path}")
     return df
 
