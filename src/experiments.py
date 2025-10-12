@@ -18,9 +18,11 @@ def run_scenario(project_root: Path, name: str, salt_modifier: float = 1.0, slop
     model = IbexModel(terrain=terrain_mod, salt_points=salt_mod,
                       n_agents=n_agents, time_steps=time_steps, slope_modifier=slope_modifier, seed=seed)
     df = model.run()
+
     out_csv = data_dir / f"results_{name}.csv"
     df.to_csv(out_csv, index=False)
     print(f"[{name}] saved to {out_csv}")
+
     # Basic figures
     heatmap_path = figures_dir / f"heatmap_{name}.png"
     ts_path = figures_dir / f"pop_{name}.png"
@@ -28,6 +30,7 @@ def run_scenario(project_root: Path, name: str, salt_modifier: float = 1.0, slop
     plot_population_timeseries(df, ts_path)
     print(f"[{name}] figures saved to {heatmap_path} and {ts_path}")
     return df
+
 if __name__ == "__main__":
     root = Path(__file__).resolve().parents[1]  # project root
     np.random.seed(42)

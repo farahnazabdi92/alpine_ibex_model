@@ -41,4 +41,3 @@ def plot_population_timeseries(df: pd.DataFrame, out_path: Path):
     plt.savefig(out_path, dpi=160, bbox_inches="tight")
     plt.show()
     plt.close()
-    print(f"Saved {path}")
