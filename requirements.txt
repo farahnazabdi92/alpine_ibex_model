@@ -1,5 +1,5 @@
 # Python Environment
-Python >= 3.9
+# requires Python >= 3.9
 
 # Data Handling
 numpy == 1.26.4
