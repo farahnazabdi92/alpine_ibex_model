@@ -2,7 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import numpy as np, matplotlib.pyplot as plt, pandas as pd
 
-def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
+def plot_heatmap(df: pd.DataFrame, out_path: Path, scenario_name: str, grid_size: int = 100):
     """Plot occupancy heatmap from agent positions over time."""
     xs = df["x"].to_numpy(dtype=float)
     ys = df["y"].to_numpy(dtype=float)
@@ -15,10 +15,10 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
     # Display
     plt.figure()
     plt.imshow(H, origin="lower", aspect="auto")
-    plt.title("Agent Occupancy Heatmap")
+    plt.title(f"{scenario_name.capitalize()} — Agent Occupancy Heatmap", fontsize=12, fontweight="bold")
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.colorbar()
+    plt.colorbar(label="Agent density")
     #Output
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -26,16 +26,16 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
     plt.show()
     plt.close()
 
-def plot_population_timeseries(df: pd.DataFrame, out_path: Path):
+def plot_population_timeseries(df: pd.DataFrame, out_path: Path, scenario_name: str):
     """Plot number of alive agents over time."""
     if df.empty:
         return
     alive_by_step = df.groupby("step")["alive"].sum()
     plt.figure()
     alive_by_step.plot()
-    plt.title("Alive Ibex Over Time")
+    plt.title(f"{scenario_name.capitalize()} — Alive Ibex Over Time", fontsize=12, fontweight="bold")
     plt.xlabel("Step")
-    plt.ylabel("Alive")
+    plt.ylabel("Number of Alive Agents")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=160, bbox_inches="tight")

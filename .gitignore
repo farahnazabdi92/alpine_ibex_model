@@ -1,0 +1,9 @@
+# Ignore Jupyter and Python cache files
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+.idea/
+anaconda_projects/
