@@ -26,16 +26,16 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, scenario_name: str, grid_size
     plt.show()
     plt.close()
 
-def plot_population_timeseries(df: pd.DataFrame, out_path: Path):
+def plot_population_timeseries(df: pd.DataFrame, out_path: Path, scenario_name: str):
     """Plot number of alive agents over time."""
     if df.empty:
         return
     alive_by_step = df.groupby("step")["alive"].sum()
     plt.figure()
     alive_by_step.plot()
-    plt.title("Alive Ibex Over Time")
+    plt.title(f"{scenario_name.capitalize()} — Alive Ibex Over Time", fontsize=12, fontweight="bold")
     plt.xlabel("Step")
-    plt.ylabel("Alive")
+    plt.ylabel("Number of Alive Agents")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=160, bbox_inches="tight")
