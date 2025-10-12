@@ -2,7 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import numpy as np, matplotlib.pyplot as plt, pandas as pd
 
-def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
+def plot_heatmap(df: pd.DataFrame, out_path: Path, scenario_name: str, grid_size: int = 100):
     """Plot occupancy heatmap from agent positions over time."""
     xs = df["x"].to_numpy(dtype=float)
     ys = df["y"].to_numpy(dtype=float)
@@ -15,10 +15,10 @@ def plot_heatmap(df: pd.DataFrame, out_path: Path, grid_size: int = 100):
     # Display
     plt.figure()
     plt.imshow(H, origin="lower", aspect="auto")
-    plt.title("Agent Occupancy Heatmap")
+    plt.title(f"{scenario_name.capitalize()} — Agent Occupancy Heatmap", fontsize=12, fontweight="bold")
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.colorbar()
+    plt.colorbar(label="Agent density")
     #Output
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
