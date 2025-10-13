@@ -87,12 +87,12 @@ The notebook dynamically displays:
 - Spatial heatmaps of Ibex movement
 - Scenario-wise summaries
 
-Example results:
-| Scenario | Description | Figure |
-|-----------|--------------|---------|
-| Baseline | Normal terrain and salt | ![Baseline](figures/pop_baseline.png) |
-| Low Salt | 50% fewer salt points | ![LowSalt](figures/pop_low_salt.png) |
-| Steeper Terrain | 30% higher slope | ![Steeper](figures/pop_steeper.png) |
+| Scenario | Heatmap | Population |
+|-----------|----------|------------|
+| Baseline | ![Baseline](figures/heatmap_baseline.png) | ![BaselinePop](figures/pop_baseline.png) |
+| Low Salt | ![LowSalt](figures/heatmap_low_salt.png) | ![LowSaltPop](figures/pop_low_salt.png) |
+| Steeper  | ![Steeper](figures/heatmap_steeper.png)  | ![SteeperPop](figures/pop_steeper.png)  |
+
 
 ---
 
